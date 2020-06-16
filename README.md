@@ -2,12 +2,14 @@
 
 # Poker Pocket Web Client
 
-Nitramite Poker Pocket poker game web front end is old web project which brings web ui for following game backend:
+Nitramite Poker Pocket poker game web front end is <b>old</b> web project which brings web ui for following game backend:
 [Poker-Pocket-Backend](https://github.com/norkator/Poker-Pocket-Backend)
 
 Public production version of this UI is here: [Poker Pocket Web UI](https://pokerpocket.nitramite.com/)
 
 Google Play Poker Pocket application: [Google Play App](https://play.google.com/store/apps/details?id=com.nitramite.pokerpocket)
+
+I have not developed this anymore in long time.
 
 
 Table of contents
