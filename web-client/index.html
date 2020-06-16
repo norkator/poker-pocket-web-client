@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!--
+    ██████╗  ██████╗ ██╗  ██╗███████╗██████╗     ██████╗  ██████╗  ██████╗██╗  ██╗███████╗████████╗
+    ██╔══██╗██╔═══██╗██║ ██╔╝██╔════╝██╔══██╗    ██╔══██╗██╔═══██╗██╔════╝██║ ██╔╝██╔════╝╚══██╔══╝
+    ██████╔╝██║   ██║█████╔╝ █████╗  ██████╔╝    ██████╔╝██║   ██║██║     █████╔╝ █████╗     ██║
+    ██╔═══╝ ██║   ██║██╔═██╗ ██╔══╝  ██╔══██╗    ██╔═══╝ ██║   ██║██║     ██╔═██╗ ██╔══╝     ██║
+    ██║     ╚██████╔╝██║  ██╗███████╗██║  ██║    ██║     ╚██████╔╝╚██████╗██║  ██╗███████╗   ██║
+    ╚═╝      ╚═════╝ ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝    ╚═╝      ╚═════╝  ╚═════╝╚═╝  ╚═╝╚══════╝   ╚═╝
+    -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="https://pokerpocket.nitramite.com/assets/images/logo.png">
+    <title>Poker Pocket Texas Hold'em</title>
+
+    <meta name="description" content="Poker Pocket android application's Texas Hold'em online web client where you can play texas holdem in same rooms as in android version.">
+    <meta name="author" content="Martin Kankaanranta">
+
+    <!-- Style sheets -->
+    <link href="./assets/libraries/bootstrap-switch.min.css" rel="stylesheet">
+    <link href="./assets/libraries/magic.min.css" rel="stylesheet">
+    <link href="./assets/libraries/toastr.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+          integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css">
+    <link href="app.css" rel="stylesheet">
+
+</head>
+<body class="body">
+
+<!-- ****************************************************************************** -->
+
+<!-- Navigation bar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="http://www.nitramite.com/poker-pocket.html"><img src="./assets/images/logo.png" width="30" height="30" class="d-inline-block align-top" alt="Poker Pocket logo">Poker Pocket</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto mt-1 mt-md-0">
+            <button class="btn btn-sm align-middle btn-outline-light" role="button" onclick="$('#selectRoomModal').modal('show'); getRooms('all');" type="button" style="margin-right: 5px;">Get rooms</button>
+            <button class="btn btn-sm align-middle btn-outline-light" role="button" onclick="$('#selectRoomModal').modal('show'); getSpectateRooms();" type="button" style="margin-right: 5px;">Spectate</button>
+            <button class="btn btn-sm align-middle btn-outline-light" role="button" onclick="$('#rankingsModal').modal('show'); getRankings();" type="button" style="margin-right: 5px;">Rankings</button>
+            <button class="btn btn-sm align-middle btn-outline-light" role="button" onclick="getGameInformation()" type="button" style="margin-right: 5px;">Server</button>
+            <button class="btn btn-sm align-middle btn-outline-light" role="button" type="button" data-toggle="modal" data-target="#cmdModal" style="margin-right: 5px;">Cmd</button>
+            <button id="soundToggleBtn" class="btn btn-sm align-middle btn-outline-light" onclick="toggleSounds()" role="button" type="button" style="margin-right: 5px;">Disable sounds</button>
+        </ul>
+
+        <ul id="loggedInUserIcon" class="nav navbar-nav navbar-right" onclick="getLoggedInUserStatistics(); $('#userModal').modal('show');">
+            <li style="margin-right: 5px;">
+                <div id="xpNeededForNextMedalText" style="color: white; height: 100%; text-align: center; margin-top: 5px;"></div>
+            </li>
+            <li>
+                <div style="margin-right: 5px;">
+                    <img id="loggedInUserMedal" style="width: 20px; height: 40px;" src="./assets/images/shaded_medal_blank.png" alt="User medal">
+                </div>
+            </li>
+            <li>
+                <div style="margin-right: 5px;">
+                    <img style="width: 40px; height: 40px;" src="./assets/images/logo_circle.png" alt="Poker Pocket circle logo">
+                </div>
+            </li>
+        </ul>
+        <form class="form-inline mt-1 my-md-0">
+            <button id="nav_bar_login_btn" class="btn btn-outline-success my-2 my-sm-0" role="button" data-toggle="modal" data-target="#modal-dialog">Login</button>
+            <button id="login_logout_btn" type="button" class="btn btn-outline-success my-2 my-sm-0" role="button">Logout</button>
+        </form>
+    </div>
+</nav>
+
+<!-- ****************************************************************************** -->
+
+<div id="noSocketConnection" onclick="location.reload()" style="background-color: #d9534f; height: 0; text-align: center; color: white; font-size: 20px; padding-bottom: 4px; visibility: collapse;" role="button">
+    No connection, click here to try again
+</div>
+
+<!-- ****************************************************************************** -->
+
+<!-- Accept policy modal -->
+<div class="modal fade" id="policyModal" tabindex="-1" role="dialog" aria-labelledby="policyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" style="background-color: rgba(43, 43, 43, 0.56)">
+            <div class="modal-header">
+                <h5 class="modal-title" style="color: white">Readme</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div style="color: white">
+                    Poker Pocket is beta level under development project which goal is to become super simple and just play without messing around poker game.<br><br>
+                    Poker Pocket will never include content like half naked women or other content similar like that. It also wont pressure you to make you spent real money on coins whats so ever.<br><br>
+                    Slow progress comes from facts that I do this alone, except table and card graphics. <br><br>
+                    Poker Pocket is available for Android which has more game modes and Online Hold'em web browser version which is this. Both android and web browser online Hold'em games communicates with same server so having own account and playing with friends is possible. <br><br>
+                    Shuffling cards is based on cryptography level "secure random" algorithm.<br><br>
+                    Web version does not have ads since most of the people use ad blocker's. If you want to support, play more using Android app.<br><br>
+                    Thank you!
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="accept_policy_btn" type="button" class="btn btn-success" data-dismiss="modal">Accept</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ****************************************************************************** -->
+<!-- Login, register forms -->
+
+<div class="modal fade" id="modal-dialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" align="center">
+                <img class="img-circle" id="img_logo" src="./assets/images/logo.png" alt="Poker Pocket logo">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div id="div-forms">
+                <!-- Begin # Login Form -->
+                <form id="login-form">
+                    <div class="modal-body">
+                        <div id="div-login-msg" style="margin-left: 2px;">
+                            <span id="text-login-msg">Give your Poker Pocket account username and password.</span>
+                        </div>
+                        <input id="login_username" class="form-control" type="text" placeholder="Username" required style="margin-top: 5px;">
+                        <input id="login_password" class="form-control" type="password" placeholder="Password" required style="margin-top: 5px;">
+                    </div>
+                    <div class="modal-footer">
+                        <div>
+                            <button class="btn btn-primary btn-md btn-block" role="button">Login</button>
+                        </div>
+                        <div>
+                            <button id="login_register_btn" type="button" class="btn btn-default" role="button">Register</button>
+                            <button id="login_lost_btn" type="button" class="btn btn-default" role="button" onclick="forgotPasswordBtn()">Forgot password?</button>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Begin | Register Form -->
+                <form id="register-form" style="display:none;">
+                    <div class="modal-body">
+                        <div id="div-register-msg" style="margin-left: 2px;">
+                            <span id="text-register-msg">Register Poker Pocket account.</span>
+                        </div>
+                        <input id="register_username" class="form-control" type="text" placeholder="Username" required style="margin-top: 5px;">
+                        <input id="register_password" class="form-control" type="password" placeholder="Password" required style="margin-top: 5px;">
+                        <input id="register_email" class="form-control" type="email" placeholder="Email" required style="margin-top: 5px;">
+                    </div>
+                    <div class="modal-footer">
+                        <div>
+                            <button class="btn btn-primary btn-md btn-block" role="button">Register</button>
+                        </div>
+                        <div>
+                            <button id="register_login_btn" type="button" class="btn btn-default" role="button">Log In</button>
+                            <button id="register_lost_btn" type="button" class="btn btn-default" role="button" onclick="forgotPasswordBtn()">Forgot password?</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ****************************************************************************** -->
+
+<!-- Server information modal -->
+<div class="modal fade" id="gameInformationModal" tabindex="-1" role="dialog" aria-labelledby="InformationModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="InformationModalLabel">Server information</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div style="width: 100%; text-align: center">T Connections</div>
+                        <button id="totalConnections" type="button" class="btn btn-danger" style="width: 100%"></button>
+                    </div>
+                    <div class="col-md-4">
+                        <div style="width: 100%; text-align: center">A Connections</div>
+                        <button id="activeConnections" type="button" class="btn btn-danger" style="width: 100%"></button>
+                    </div>
+                    <div class="col-md-4">
+                        <div style="width: 100%; text-align: center">Server uptime</div>
+                        <button id="serverUptime" type="button" class="btn btn-danger" style="width: 100%"></button>
+                    </div>
+                </div>
+                <!--
+                <div>Server free memory</div>
+                <div class="progress">
+                    <div id="serverMemoryFree" class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">0%</div>
+                </div>
+                -->
+                <div>Server total memory</div>
+                <div class="progress">
+                    <div id="serverMemoryTotal" class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="1000" style="width: 0%;">0%</div>
+                </div>
+                <div>Server load average</div>
+                <div id="serverLoadAverage" class="progress">
+                    <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">0%</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ****************************************************************************** -->
+
+<!-- Select room modal -->
+<div class="modal fade" id="selectRoomModal" tabindex="-1" role="dialog" aria-labelledby="SelectModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="SelectModalLabel">Select room</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>
+                    <button type="button" onclick="getRooms('all'); if (enableSounds) {playCardChipLayOne.play();}" class="btn btn-primary btn3d">Playing rooms</button>
+                    <button type="button" onclick="getSpectateRooms(); if (enableSounds) {playCardChipLayOne.play();}" class="btn btn-default btn3d">Spectate rooms</button>
+                </p>
+                <div style="margin-left: 10px; margin-bottom: 5px">
+                    <div class="custom-control custom-radio custom-control-inline">
+                        <input id="allRB" name="radio" type="radio" checked="checked" class="custom-control-input">
+                        <label class="custom-control-label" for="allRB">All</label>
+                    </div>
+                    <div class="custom-control custom-radio custom-control-inline">
+                        <input id="lowRB" name="radio" type="radio" class="custom-control-input">
+                        <label class="custom-control-label" for="lowRB">Low bets</label>
+                    </div>
+                    <div class="custom-control custom-radio custom-control-inline">
+                        <input id="mediumRB" name="radio" type="radio" class="custom-control-input">
+                        <label class="custom-control-label" for="mediumRB">Medium bets</label>
+                    </div>
+                    <div class="custom-control custom-radio custom-control-inline">
+                        <input id="highRB" name="radio" type="radio" class="custom-control-input">
+                        <label class="custom-control-label" for="highRB">High bets</label>
+                    </div>
+                </div>
+                <div id="roomListGroup" class="list-group">
+                    <!-- Dynamically appending here from javascript -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ****************************************************************************** -->
+
+<!-- Server command prompt modal -->
+<div class="modal fade" id="cmdModal" tabindex="-1" role="dialog" aria-labelledby="cmdModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Command prompt</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input id="cmdCommandLineOne" class="form-control" autocomplete="off" type="text" placeholder="/c" required style="margin-top: 5px;">
+                <input id="cmdCommandLineTwo" class="form-control" autocomplete="off" type="text" placeholder="/r" required style="margin-top: 5px;">
+                <input id="cmdCommandLineThree" class="form-control" autocomplete="off" type="text" placeholder="/p" required style="margin-top: 5px;">
+                <input id="cmdPassword" class="form-control" autocomplete="off" type="password" placeholder="Password" required style="margin-top: 5px;">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="sendServerCommand()">Send</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ****************************************************************************** -->
+
+<!-- Logged in user statistics view -->
+<div class="modal fade" id="userModal" tabindex="-1" role="dialog" aria-labelledby="userModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">My statistics</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div style="width: 100%; text-align: center">Money</div>
+                        <button id="userStatsMoney" type="button" class="btn btn-danger" style="width: 100%; font-size: 2em;"></button>
+                    </div>
+                    <div class="col-md-3">
+                        <div style="width: 100%; text-align: center">Wins</div>
+                        <button id="userStatsWins" type="button" class="btn btn-danger" style="width: 100%; font-size: 2em;"></button>
+                    </div>
+                    <div class="col-md-3">
+                        <div style="width: 100%; text-align: center">Losses</div>
+                        <button id="userStatsLoses" type="button" class="btn btn-danger" style="width: 100%; font-size: 2em;"></button>
+                    </div>
+                </div>
+                <hr class="my-3">
+                <div style="width: 100%; margin-top: 10px;">
+                    <button id="userXP" type="button" class="btn btn-danger" style="width: 100%; font-size: 2em;"></button>
+                    <div id="userStatsMedalsTitle" style="width: 100%; margin-top: 10px; text-align: center;">No medals</div>
+                    <div id="userStatsMedalsFlexBox" class="d-flex justify-content-center flex-row">
+                        <!-- Dynamically appending here from javascript -->
+                    </div>
+                    <!-- Player statistics chart comes here -->
+                    <div>
+                        <div id="playerMoneyChart"></div>
+                    </div>
+                    <div>
+                        <div id="playerWinLoseChart"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="getPlayerChartData();">Load player chart</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ****************************************************************************** -->
+
+<!-- Rankings modal view -->
+<div class="modal fade" id="rankingsModal" tabindex="-1" role="dialog" aria-labelledby="userModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Rankings</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div style="width: 100%; text-align: center;">Starts from best players</div>
+                <ul id="rankingListGroup" class="list-group" style="margin-top: 10px;">
+                    <!-- Dynamically appending here from javascript -->
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ****************************************************************************** -->
+<div class="container" style="min-width: 850px; width: 850px; margin-top: 5px">
+
+
+    <div class="card" style="background-color: #434343; width: 100%; padding-top: 5px; padding-bottom: 5px;">
+
+        <!-- Room status -->
+        <div class="row">
+            <div class="col-10">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm">
+                            <div id="roomName" style="color: #FFFFFF; font-size: 14px;">♦ Default room</div>
+                        </div>
+                        <div class="col-sm">
+                            <div id="spectatorsCount" style="color: #FFFFFF; font-size: 12px;">♦ Spectating: 0</div>
+                        </div>
+                        <div class="col-sm">
+                            <div id="waitingPlayersCount" style="color: #FFFFFF; font-size: 12px;">♦ Waiting: 0</div>
+                        </div>
+                        <div class="col-sm">
+                            <div id="deckStatus" style="color: #FFFFFF; font-size: 12px;">♦ Deck: -</div>
+                        </div>
+                        <div class="col-sm">
+                            <div id="deckCardsBurned" style="color: #FFFFFF; font-size: 12px;">♦ Burned: -</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-8">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm">
+                        <div id="roomStatusText" style="color: white; text-align: left">Wait for parameters...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Poker table -->
+    <div id="pokerTable" class="poker-table">
+
+        <!-- Top layout -->
+        <div class="row" style="height: 133px; ">
+            <div class="col" >
+                <!-- Seat layout -->
+                <div style="float: right" id="s3SeatFrame">
+                    <div id="s3ActionFrame" class="container" style="position: absolute; margin-left: 40px; margin-top: 40px;">
+                        <!-- text div with animation is appended here at 'room' -->
+                    </div>
+                    <div class="container" style="width: 200px;">
+                        <div class="row">
+                            <div class="col" style="margin-left: 22px">
+                                <div id="s3c0" class="cardOne magictime puffIn"></div>
+                            </div>
+                            <div class="col" style="margin-left: -20px">
+                                <div id="s3c1" class="cardTwo magictime puffIn"></div>
+                            </div>
+                            <div class="col"></div>
+                        </div>
+                    </div>
+                    <div class="container" style="width: 200px; margin-top: -20px">
+                        <div id="s3CardView" class="card">
+                            <div id="s3Name" class="seatTexts">Seat 3</div>
+                            <div id="s3Money" class="seatTexts">10,000$</div>
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" id="s3TimeBar"
+                                     aria-valuemin="0" aria-valuemax="100" style="width:50%;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="s3BetFrame" class="container magictime puffIn" style="width: 20px; height: 20px; position: relative; margin-right: -10px; margin-top: -50px; z-index: 1000;">
+                        <div class="moneyView"></div>
+                        <div id="s3TotalBet" class="seatTexts">10000</div>
+                    </div>
+                    <div id="s3DealerChip" class="dealerChipView" style="position: absolute; margin-left: 155px; margin-top: -50px;"></div>
+                </div>
+                <!-- /Seat -->
+            </div>
+            <div class="col-2">
+                <!-- POT INFO -->
+            </div>
+            <div class="col">
+                <!-- Seat layout -->
+                <div style="float: left" id="s4SeatFrame">
+                    <div id="s4ActionFrame" class="container" style="position: absolute; margin-left: -210px; margin-top: 40px;">
+                        <!-- text div with animation is appended here at 'room' -->
+                    </div>
+                    <div class="container" style="width: 200px;">
+                        <div class="row">
+                            <div class="col" style="margin-left: 22px">
+                                <div id="s4c0" class="cardOne magictime puffIn"></div>
+                            </div>
+                            <div class="col" style="margin-left: -20px">
+                                <div id="s4c1" class="cardTwo magictime puffIn"></div>
+                            </div>
+                            <div class="col"></div>
+                        </div>
+                    </div>
+                    <div class="container" style="width: 200px; margin-top: -20px">
+                        <div id="s4CardView" class="card">
+                            <div id="s4Name" class="seatTexts">Seat 4</div>
+                            <div id="s4Money" class="seatTexts">10,000$</div>
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" id="s4TimeBar"
+                                     aria-valuemin="0" aria-valuemax="100" style="width:50%">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="s4BetFrame" class="container magictime puffIn" style="width: 20px; height: 20px; position: relative; margin-left: -50px; margin-top: -50px; z-index: 1000;">
+                        <div class="moneyView"></div>
+                        <div id="s4TotalBet" class="seatTexts">10000</div>
+                    </div>
+                    <div id="s4DealerChip" class="dealerChipView" style="position: absolute; margin-top: -50px;"></div>
+                </div>
+                <!-- /Seat -->
+            </div>
+        </div>
+
+
+
+        <!-- Middle layout -->
+        <div class="row" style="height: 133px">
+            <div class="col">
+                <!-- Seat layout -->
+                <div id="s2SeatFrame">
+                    <div class="container" style="width: 200px;">
+                        <div class="row">
+                            <div class="col" style="margin-left: 22px">
+                                <div id="s2c0" class="cardOne magictime puffIn"></div>
+                            </div>
+                            <div class="col" style="margin-left: -20px">
+                                <div id="s2c1" class="cardTwo magictime puffIn"></div>
+                            </div>
+                            <div class="col"></div>
+                        </div>
+                    </div>
+                    <div id="s2ActionFrame" class="container" style="position: absolute; margin-left: 90px; margin-top: -70px;">
+                        <!-- text div with animation is appended here at 'room' -->
+                    </div>
+                    <div class="container" style="width: 200px; margin-top: -20px">
+                        <div id="s2CardView" class="card">
+                            <div id="s2Name" class="seatTexts">Seat 2</div>
+                            <div id="s2Money" class="seatTexts">10,000$</div>
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" id="s2TimeBar"
+                                     aria-valuemin="0" aria-valuemax="100" style="width:50%">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="s2BetFrame" class="container magictime puffIn" style="width: 20px; height: 20px; position: relative; margin-right: 1px; margin-top: -80px; z-index: 1000;">
+                        <div class="moneyView"></div>
+                        <div id="s2TotalBet" class="seatTexts">10000</div>
+                    </div>
+                    <div id="s2DealerChip" class="dealerChipView" style="position: absolute; margin-left: 165px; margin-top: -25px;"></div>
+                </div>
+                <!-- /Seat -->
+            </div>
+            <div class="col-5">
+
+
+                <!-- MIDDLE CARDS -->
+                <div class="container">
+                    <div class="row" style="margin-top: 15px; margin-left: 20px">
+                        <div id="mC0" class="middleCard magictime puffIn"></div>
+                        <div id="mC1" class="middleCard magictime puffIn"></div>
+                        <div id="mC2" class="middleCard magictime puffIn"></div>
+                        <div id="mC3" class="middleCard magictime puffIn"></div>
+                        <div id="mC4" class="middleCard magictime puffIn"></div>
+                    </div>
+                    <div id="totalPot" class="totalPotText">24,000$</div>
+                    <div id="minBet" class="minBetText">MB 100,00$</div>
+                </div>
+                <!-- /MIDDLE CARDS -->
+
+
+            </div>
+            <div class="col">
+                <!-- Seat layout -->
+                <div id="s5SeatFrame">
+                    <div class="container" style="width: 200px;">
+                        <div class="row">
+                            <div class="col" style="margin-left: 22px">
+                                <div id="s5c0" class="cardOne magictime puffIn"></div>
+                            </div>
+                            <div class="col" style="margin-left: -20px">
+                                <div id="s5c1" class="cardTwo magictime puffIn"></div>
+                            </div>
+                            <div class="col"></div>
+                        </div>
+                    </div>
+                    <div id="s5ActionFrame" class="container" style="position: absolute; margin-left: -120px; margin-top: -70px;">
+                        <!-- text div with animation is appended here at 'room' -->
+                    </div>
+                    <div class="container" style="width: 200px; margin-top: -20px">
+                        <div id="s5CardView" class="card">
+                            <div id="s5Name" class="seatTexts">Seat 5</div>
+                            <div id="s5Money" class="seatTexts">10,000$</div>
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" id="s5TimeBar"
+                                     aria-valuemin="0" aria-valuemax="100" style="width:50%">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="s5BetFrame" class="container magictime puffIn" style="width: 20px; height: 20px; position: relative; margin-left: -40px; margin-top: -80px; z-index: 1000;">
+                        <div class="moneyView"></div>
+                        <div id="s5TotalBet" class="seatTexts">10000</div>
+                    </div>
+                    <div id="s5DealerChip" class="dealerChipView" style="position: absolute; margin-left: 15px; margin-top: -25px;"></div>
+                </div>
+                <!-- /Seat -->
+            </div>
+        </div>
+
+
+
+        <!-- Bottom layout -->
+        <div class="row" style="height: 133px">
+            <div class="col">
+                <!-- Seat layout -->
+                <div style="float: right;" id="s1SeatFrame">
+                    <div id="s1BetFrame" class="container magictime puffIn" style="width: 20px; height: 20px; position: relative; margin-right: 20px; z-index: 1000;">
+                        <div class="moneyView"></div>
+                        <div id="s1TotalBet" class="seatTexts">10000</div>
+                    </div>
+                    <div id="s1ActionFrame" class="container" style="position: absolute; margin-left: -50px; margin-top: -40px;">
+                        <!-- text div with animation is appended here at 'room' -->
+                    </div>
+                    <div class="container" style="width: 200px;">
+                        <div class="row">
+                            <div class="col" style="margin-left: 22px">
+                                <div id="s1c0" class="cardOne magictime puffIn"></div>
+                            </div>
+                            <div class="col" style="margin-left: -20px">
+                                <div id="s1c1" class="cardTwo magictime puffIn"></div>
+                            </div>
+                            <div class="col"></div>
+                        </div>
+                    </div>
+                    <div class="container" style="width: 200px; margin-top: -20px;">
+                        <div id="s1CardView" class="card">
+                            <div id="s1Name" class="seatTexts">Seat 1</div>
+                            <div id="s1Money" class="seatTexts">10,000$</div>
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" id="s1TimeBar"
+                                     aria-valuemin="0" aria-valuemax="100" style="width:50%">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="s1DealerChip" class="dealerChipView" style="position: absolute; margin-left: 160px; margin-top: -80px;"></div>
+                </div>
+                <!-- /Seat -->
+            </div>
+            <div class="col-2">
+                <!-- Empty space -->
+            </div>
+            <div class="col">
+                <!-- Seat layout -->
+                <div style="float: left" id="s6SeatFrame" >
+                    <div id="s6BetFrame" class="container magictime puffIn" style="width: 20px; height: 20px; position: relative; margin-left: -20px">
+                        <div class="moneyView"></div>
+                        <div id="s6TotalBet" class="seatTexts">10000</div>
+                    </div>
+                    <div id="s6ActionFrame" class="container" style="position: absolute; margin-left: -120px; margin-top: -40px;">
+                        <!-- text div with animation is appended here at 'room' -->
+                    </div>
+                    <div class="container" style="width: 200px;">
+                        <div class="row">
+                            <div class="col" style="margin-left: 22px">
+                                <div id="s6c0" class="cardOne magictime puffIn"></div>
+                            </div>
+                            <div class="col" style="margin-left: -20px">
+                                <div id="s6c1" class="cardTwo magictime puffIn"></div>
+                            </div>
+                            <div class="col"></div>
+                        </div>
+                    </div>
+                    <div class="container" style="width: 200px; margin-top: -20px">
+                        <div id="s6CardView" class="card">
+                            <div id="s6Name" class="seatTexts">Seat 6</div>
+                            <div id="s6Money" class="seatTexts">10,000$</div>
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" id="s6TimeBar"
+                                     aria-valuemin="0" aria-valuemax="100" style="width:50%">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="s6DealerChip" class="dealerChipView" style="position: absolute; margin-top: -80px;"></div>
+                </div>
+                <!-- /Seat -->
+            </div>
+        </div>
+
+    </div> <!-- /pokerTable -->
+
+
+    <!-- Bottom controls -->
+    <div class="card" style="background-color: #434343; width: 100%; margin-top: -20px">
+        <div class="container" style="width: 100%; padding: 10px; margin-left: 10%">
+            <div class="row" style="width: 100%">
+                <div class="col">
+                    <button onclick="betTenClick()" type="button" class="btn btn-danger">+10</button>
+                    <button onclick="betTwentyFiveClick()" type="button" class="btn btn-danger">+25</button>
+                    <button onclick="betOneHundredClick()" type="button" class="btn btn-danger">+100</button>
+                    <button onclick="betFiveHundredClick()" type="button" class="btn btn-danger">+500</button>
+                    <button onclick="betAllInClick()" type="button" class="btn btn-danger">All in</button>
+                </div>
+                <div class="col">
+                    <button onclick="foldBtnClick()" id="foldBtn" type="button" class="btn btn-danger">Fold</button>
+                    <button onclick="checkBtnClick()" id="checkBtn" type="button" class="btn btn-danger">Check</button>
+                    <button onclick="raiseBtnClick()" id="raiseBtn" type="button" class="btn btn-danger">Raise</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Copyright & badge -->
+    <div class="container" style="min-width: 850px;">
+        <div class="row">
+            <div class="col-4">
+                <footer class="footer">
+                    <div style="color: #FFFFFF;">♣ ♦ ♥ ♠</div>
+                    <div style="color: #FFFFFF">&copy; Nitramite 2017 - MK</div>
+                    <div style="color: #FFFFFF">Graphics Raphael Ciribelly</div>
+                </footer>
+            </div>
+            <div class="col" style="margin-top: 10px">
+                <div style="color: #ffffff; margin-left: -20px; font-size: 13px">Purple table</div>
+                <div class="row">
+                    <input type="checkbox" name="purple-table-mode-toggle" data-on-color="danger" data-off-color="danger"
+                           data-on-text="Off" data-off-text="On" data-size="small" data-label-width="0">
+                </div>
+            </div>
+            <div class="col" style="margin-top: 10px">
+                <div style="color: #ffffff; margin-left: -20px; font-size: 13px">Black cards</div>
+                <div class="row">
+                    <input type="checkbox" name="black-cards-mode-toggle" data-on-color="danger" data-off-color="danger"
+                           data-on-text="Off" data-off-text="On" data-size="small" data-label-width="0">
+                </div>
+            </div>
+            <div class="col" style="margin-top: 10px;" >
+                <div style="color: #ffffff; margin-left: -20px; font-size: 13px;">Auto check</div>
+                <div class="row">
+                    <input type="checkbox" name="auto-check-mode-toggle" data-on-color="danger" data-off-color="danger"
+                           data-on-text="Off" data-off-text="On" data-size="small" data-label-width="0">
+                </div>
+            </div>
+            <div class="col" style="margin-top: 10px">
+                <div style="color: #ffffff; margin-left: -20px; font-size: 13px">Connection</div>
+                <div class="row">
+                    <input type="checkbox" name="connection-mode-toggle" data-on-color="danger" data-off-color="danger"
+                           data-on-text="Dev" data-off-text="Prod" data-size="small" data-label-width="0">
+                </div>
+            </div>
+            <div class="col-3" style="margin-top: 20px">
+                <div class="row">
+                    <a href="https://play.google.com/store/apps/details?id=com.nitramite.pokerpocket">
+                        <img class="playBadge" src="./assets/images/badge_play.png" alt="Poker Pocket on Google Play">
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<!-- ****************************************************************************** -->
+<!-- Require scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.0.7/howler.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+        integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+        integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+<script src="./assets/libraries/sha3.js"></script>
+<script src="./assets/libraries/bootstrap-switch.min.js"></script>
+<script src="./assets/libraries/toastr.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"></script>
+<script src="config.js"></script>
+<script src="./app/forms.js"></script>
+<script src="./app/support.js"></script>
+<script src="./app/audio.js"></script>
+<script src="app/room.js"></script>
+<script src="./app/player.js"></script>
+<script src="./app/webSocket.js"></script>
+<script src="app.js"></script>
+<!-- ****************************************************************************** -->
+</body>
+<!-- ****************************************************************************** -->
+<!-- Run if javascript is disabled on user's browser -->
+<noscript>
+    <style type="text/css">
+        .container {display:none;}
+    </style>
+    <div style="color: white; font-size: 18px; margin-top: 20px; margin-left: 20px;">This site requires javascript to work.</div>
+</noscript>
+</html>
+<!-- ****************************************************************************** -->
