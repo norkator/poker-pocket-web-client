@@ -305,7 +305,7 @@ Seat.prototype.setTimeBar = function (time) {
   if (time > 0) {
     this.seatTimeBar.style = 'width: 100%';
     this.seatTimeBar.style.visibility = 'visible'
-    this.seatTimeBar.style.animation = 'lineburn ' + time/1000 + 's linear forwards';
+    this.seatTimeBar.style.animation = 'lineBurn ' + time/1000 + 's linear forwards';
   } else {
     this.seatTimeBar.style.visibility = 'hidden';
     this.seatTimeBar.style.animation = '';
