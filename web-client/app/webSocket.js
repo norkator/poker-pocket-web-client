@@ -465,8 +465,10 @@ function statusUpdate(sData) {
     var pTurn = sData.playersData[i].isPlayerTurn;
     var pIsFold = sData.playersData[i].isFold;
     var pTimeBar = sData.playersData[i].timeBar;
+    var pTimeLeft = sData.playersData[i].timeLeft;
     var pId = sData.playersData[i].playerId;
-    players[i].setTimeBar(pTimeBar);
+
+    players[i].setTimeBar(pTimeLeft);
     if (Number(pId) == Number(CONNECTION_ID) && players[i].tempBet > 0) {
       // Do nothing
     } else {

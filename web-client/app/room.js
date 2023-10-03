@@ -300,8 +300,16 @@ Seat.prototype.setMoney = function (money) {
   this.seatMoney.innerHTML = Number(money).currencyFormat(2, '.', ',') + '$';
 };
 
-Seat.prototype.setTimeBar = function (progress) {
-  this.seatTimeBar.style = 'width:' + progress + '%';
+Seat.prototype.setTimeBar = function (time) {
+  // this.seatTimeBar.style = 'width:' + timeLeft + '%';
+  if (time > 0) {
+    this.seatTimeBar.style = 'width: 100%';
+    this.seatTimeBar.style.visibility = 'visible'
+    this.seatTimeBar.style.animation = 'lineBurn ' + time/1000 + 's linear forwards';
+  } else {
+    this.seatTimeBar.style.visibility = 'hidden';
+    this.seatTimeBar.style.animation = '';
+  }
 };
 
 Seat.prototype.setBetFrameVisibility = function (bool) {
