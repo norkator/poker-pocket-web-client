@@ -1,3 +1,8 @@
+# ⚠️ ARCHIVED ⚠️
+
+Use this React version instead: https://github.com/norkator/poker-pocket-react-client
+
+
 ![poker_pocket_front_page](./images/poker_pocket_1.PNG)
 
 # Poker Pocket Web Client
